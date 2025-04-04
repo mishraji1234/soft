@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyAcc - dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        .table-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .net-income.negative {
+            color: red;
+        }
+        .btn-download {
+            margin: 10px;
+        }
+        .btn-dashboard {
+            margin: 10px;
+        }
+        .container {
+            padding: 20px;
+        }
+        form {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        form label {
+            margin-right: 10px;
+        }
+        form input {
+            margin-right: 20px;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .overdue {
+            color: red;
+            font-weight: bold;
+        }
+                .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.7); /* Default color */
+            transition: all 0.3s ease-in-out;
+        }
+        .navbar-nav .nav-link:hover {
+            font-weight: bold;
+            color: white; /* Make text white when hovered */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">EasyAcc</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('invoices.invoices') }}">Invoices</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('journals.journals_data') }}">Journals</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('inventory.inventory_data') }}">Inventory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('vouchers.add_voucher') }}">Vouchers</a>
+                    </li>
+               </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <footer>
+        <p>&copy; 2025 all copy right reserver to jdmaa trading</p>
+    </footer>
+<script>
+    function confirmAction(action, url) {
+        let message = "";
+        if (action === 'edit') {
+            message = "Are you sure you want to edit this voucher?";
+        } else if (action === 'download') {
+            message = "Do you want to download the vouchers?";
+        } else if (action === 'delete') {
+            message = "Are you sure you want to delete this voucher? This action cannot be undone.";
+        }
+
+        document.getElementById('confirmMessage').innerText = message;
+        document.getElementById('confirmBtn').href = url;
+        let modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+        modal.show();
+    }
+</script>
+
+<body>
+    <div class="container">
+        <h1 class="my-4 text-center">Vouchers</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+					</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+
+
+        <!-- Add New Voucher and Return to Dashboard Buttons -->
+        <div class="text-end mb-3">
+            <a href="{{ url_for('vouchers.add_voucher') }}" class="btn btn-primary w-100">Add New Voucher</a>
+
+        </div>
+
+        <!-- Vouchers Table -->
+        <div class="table-responsive">
+            <table class="table table-striped voucher-table">
+                <thead>
+                    <tr>
+                        <th>Date</th> <!-- Added DATE column -->
+                        <th>Voucher Number</th>
+                        <th>Name</th>
+                        <th>ID Number</th>
+                        <th>TIN Number</th>
+                        <th>Voucher Type</th>
+                        <th>Total Amount</th>
+                        <th>VAT</th>
+                        <th>Withhold Tax</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for voucher in vouchers %}
+                    <tr>
+                        <td>{{ voucher.date }}</td> <!-- Added DATE data -->
+                        <td>{{ voucher.voucher_number }}</td>
+                        <td>{{ voucher.name }}</td>
+                        <td>{{ voucher.id_number }}</td>
+                        <td>{{ voucher.tin_number }}</td>
+                        <td>{{ voucher.voucher_type }}</td>
+                        <td>{{ voucher.total_amount }}</td>
+                        <td>{{ voucher.vat }}</td>
+                        <td>{{ voucher.withhold_tax }}</td>
+                        <td class="action-buttons">
+    <!-- Edit Button -->                        
+							<button class="btn btn-sm btn-warning" onclick="confirmAction('edit', '{{ url_for('main.edit_voucher', id=voucher.id) }}')">
+								Edit
+							</button>
+	<!-- Download Button -->
+							<button class="btn btn-sm btn-download" onclick="confirmAction('download', '{{ url_for('main.download_vouchers') }}')">
+								Download
+							</button>
+    <!-- Delete Button -->
+							<button class="btn btn-danger btn-sm btn-delete" onclick="confirmAction('delete', '{{ url_for('main.delete_voucher', id=voucher.id) }}')">
+								Delete
+							</button>                           
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirm Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <a id="confirmBtn" href="#" class="btn btn-primary">Yes</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Bootstrap JS (required for alert dismiss functionality) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Flatpickr JS for date picker -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        // Initialize Flatpickr for date inputs
+        flatpickr("#date", {
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
+    </script>
+</body>
+</html>

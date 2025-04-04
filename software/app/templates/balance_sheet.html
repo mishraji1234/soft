@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyAcc - Accounting System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        .table-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .net-income.negative {
+            color: red;
+        }
+        .btn-download {
+            margin: 10px;
+        }
+        .btn-dashboard {
+            margin: 10px;
+        }
+        .container {
+            padding: 20px;
+        }
+        form {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        form label {
+            margin-right: 10px;
+        }
+        form input {
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.home') }}">EasyAcc</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.home') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.invoices') }}">Invoices</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.journals') }}">Journals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.ledgers') }}">Ledgers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.inventory') }}">Inventory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.vouchers') }}">Vouchers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.income_statement') }}">Income Statement</a>
+                    <li class="nav-item">
+						<a class="nav-link" href="{{ url_for('main.trial_balance') }}">Trial Balance</a></li>
+                    <li class="nav-item">
+						<a class="nav-link" href="{{ url_for('main.balance_sheet') }}">Balance Sheet</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balance Sheet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <style>
+        /* Custom styling for an attractive and eye-catching design */
+        .table thead th {
+            background-color: #4CAF50; /* Green header */
+            color: white;
+        }
+        .table tbody tr:nth-child(odd) {
+            background-color: #f2f2f2; /* Light gray for odd rows */
+        }
+        .table tbody tr:nth-child(even) {
+            background-color: #ffffff; /* White for even rows */
+        }
+        .table tbody tr:hover {
+            background-color: #e0f7fa; /* Light blue on hover */
+        }
+        .total-row {
+            background-color: #ffcc80 !important; /* Orange for total row */
+            font-weight: bold;
+        }
+        .section-header {
+            background-color: #4CAF50; /* Green for section headers */
+            color: white;
+            font-weight: bold;
+        }
+        .balance-sheet-title {
+            color: #4CAF50; /* Green title */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="balance-sheet-title">Balance Sheet</h1>
+        <div class="d-flex justify-content-between mb-3">
+            <div>
+                <label for="financial_year" class="form-label">Select Financial Year:</label>
+                <select id="financial_year" class="form-select" onchange="filterBalanceSheet()">
+                    <option value="all">All</option>
+                    {% for year in financial_years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-success" onclick="downloadAsXLSX()">Download as XLSX</button>
+                <button class="btn btn-danger" onclick="saveAsPDF()">Save as PDF</button>
+                <button class="btn btn-primary" onclick="printBalanceSheet()">Print Balance Sheet</button>
+                <button class="btn btn-success" onclick="generatePeriodReport()">Generate Period Report</button>
+            </div>
+        </div>
+        <table class="table table-bordered" id="balanceSheetTable">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Assets Section -->
+                <tr class="section-header">
+                    <td colspan="2">Assets</td>
+                </tr>
+                {% for asset in assets %}
+                <tr data-financial-year="{{ asset.financial_year }}">
+                    <td>{{ asset.description }}</td>
+                    <td>{{ asset.amount }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="total-row">
+                    <td><strong>Total Assets</strong></td>
+                    <td><strong>{{ total_assets }}</strong></td>
+                </tr>
+
+                <!-- Liabilities Section -->
+                <tr class="section-header">
+                    <td colspan="2">Liabilities</td>
+                </tr>
+                {% for liability in liabilities %}
+                <tr data-financial-year="{{ liability.financial_year }}">
+                    <td>{{ liability.description }}</td>
+                    <td>{{ liability.amount }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="total-row">
+                    <td><strong>Total Liabilities</strong></td>
+                    <td><strong>{{ total_liabilities }}</strong></td>
+                </tr>
+
+                <!-- Equity Section -->
+                <tr class="section-header">
+                    <td colspan="2">Equity</td>
+                </tr>
+                {% for equity in equity_items %}
+                <tr data-financial-year="{{ equity.financial_year }}">
+                    <td>{{ equity.description }}</td>
+                    <td>{{ equity.amount }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="total-row">
+                    <td><strong>Total Equity</strong></td>
+                    <td><strong>{{ total_equity }}</strong></td>
+                </tr>
+
+                <!-- Total Liabilities and Equity -->
+                <tr class="total-row">
+                    <td><strong>Total Liabilities and Equity</strong></td>
+                    <td><strong>{{ total_liabilities_and_equity }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Popup for Period Report -->
+    <div class="popup-overlay" id="popupOverlay"></div>
+    <div class="popup" id="periodReportPopup">
+        <h3 class="mb-4">Generate Period Report</h3>
+        <form id="periodReportForm">
+            <div class="mb-3">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" id="start_date" name="start_date" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" id="end_date" name="end_date" class="form-control" required>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary me-2" onclick="closePopup()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Generate Report</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to filter Balance Sheet by Financial Year
+        function filterBalanceSheet() {
+            const selectedYear = document.getElementById('financial_year').value;
+            const rows = document.querySelectorAll('#balanceSheetTable tbody tr');
+
+            rows.forEach(row => {
+                const financialYear = row.getAttribute('data-financial-year');
+                if (selectedYear === 'all' || financialYear === selectedYear) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Function to print the Balance Sheet
+        function printBalanceSheet() {
+            window.print();
+        }
+
+        // Function to open the period report popup
+        function generatePeriodReport() {
+            document.getElementById('popupOverlay').style.display = 'block';
+            document.getElementById('periodReportPopup').style.display = 'block';
+        }
+
+        // Function to close the popup
+        function closePopup() {
+            document.getElementById('popupOverlay').style.display = 'none';
+            document.getElementById('periodReportPopup').style.display = 'none';
+        }
+
+        // Function to handle period report form submission
+        document.getElementById('periodReportForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+
+            // Fetch data for the selected period (mock implementation)
+            const periodData = [
+                { description: "Cash in Bank", amount: 100000.00 },
+                { description: "Accounts Receivable", amount: 50000.00 },
+                { description: "Total Assets", amount: 150000.00 },
+                { description: "Accounts Payable", amount: 50000.00 },
+                { description: "Total Liabilities", amount: 50000.00 },
+                { description: "Retained Earnings", amount: 100000.00 },
+                { description: "Total Equity", amount: 100000.00 },
+                { description: "Total Liabilities and Equity", amount: 150000.00 },
+            ];
+
+            // Open the report in a new popup window
+            const reportWindow = window.open('', 'Period Report', 'width=600,height=400');
+            reportWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Period Report (${startDate} to ${endDate})</title>
+                        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    </head>
+                    <body>
+                        <div class="container mt-3">
+                            <h3 class="mb-4">Balance Sheet (${startDate} to ${endDate})</h3>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${periodData.map(row => `
+                                        <tr>
+                                            <td>${row.description}</td>
+                                            <td>${row.amount}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-success me-2" onclick="downloadAsXLSX()">Save as XLSX</button>
+                                <button class="btn btn-danger" onclick="window.close()">Cancel</button>
+                            </div>
+                        </div>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"><\/script>
+                        <script>
+                            function downloadAsXLSX() {
+                                const table = document.querySelector('table');
+                                const workbook = XLSX.utils.table_to_book(table, { sheet: "Period Report" });
+                                XLSX.writeFile(workbook, 'Period_Report.xlsx');
+                                window.close();
+                            }
+                        <\/script>
+                    </body>
+                </html>
+            `);
+            reportWindow.document.close();
+            closePopup();
+        });
+    </script>
+</body>
+</html>

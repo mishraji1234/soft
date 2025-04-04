@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Ledger</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Edit Ledger</h1>
+        <form method="POST" action="{{ url_for('edit_ledger', id=ledger.id) }}">
+            <!-- Account Name -->
+            <div class="mb-3">
+                <label for="account_name" class="form-label">Account Name</label>
+                <input type="text" class="form-control" id="account_name" name="account_name" value="{{ ledger.account_name }}" required>
+            </div>
+
+            <!-- Account Type -->
+            <div class="mb-3">
+                <label for="account_type" class="form-label">Account Type</label>
+                <select id="account_type" name="account_type" class="form-control" required>
+                    <option value="assets" {% if ledger.account_type == 'assets' %}selected{% endif %}>Assets</option>
+                    <option value="liabilities" {% if ledger.account_type == 'liabilities' %}selected{% endif %}>Liabilities</option>
+                    <option value="equity" {% if ledger.account_type == 'equity' %}selected{% endif %}>Equity</option>
+                    <option value="expenses" {% if ledger.account_type == 'expenses' %}selected{% endif %}>Expenses</option>
+                    <option value="income" {% if ledger.account_type == 'income' %}selected{% endif %}>Income/Revenue</option>
+                </select>
+            </div>
+
+            <!-- Account No. -->
+            <div class="mb-3">
+                <label for="account_no" class="form-label">Account No.</label>
+                <input type="text" id="account_no" name="account_no" class="form-control" value="{{ ledger.account_no }}" required>
+            </div>
+
+            <!-- Sub Account -->
+            <div class="mb-3">
+                <label for="sub_account" class="form-label">Sub Account</label>
+                <select id="sub_account" name="sub_account" class="form-control" required>
+                    <optgroup label="Asset Sub-Accounts">
+                        <option value="cash_in_bank" {% if ledger.sub_account == 'cash_in_bank' %}selected{% endif %}>Cash in bank</option>
+                        <option value="accounts_receivable" {% if ledger.sub_account == 'accounts_receivable' %}selected{% endif %}>Accounts receivable</option>
+                        <option value="inventory" {% if ledger.sub_account == 'inventory' %}selected{% endif %}>Inventory</option>
+                        <option value="equipment" {% if ledger.sub_account == 'equipment' %}selected{% endif %}>Equipment</option>
+                        <option value="pp&e" {% if ledger.sub_account == 'pp&e' %}selected{% endif %}>Property, Plant, and Equipment (PP&E)</option>
+                    </optgroup>
+                    <optgroup label="Liability Sub-Accounts">
+                        <option value="accounts_payable" {% if ledger.sub_account == 'accounts_payable' %}selected{% endif %}>Accounts payable</option>
+                        <option value="salaries_payable" {% if ledger.sub_account == 'salaries_payable' %}selected{% endif %}>Salaries payable</option>
+                        <option value="unearned_revenue" {% if ledger.sub_account == 'unearned_revenue' %}selected{% endif %}>Unearned revenue</option>
+                        <option value="sales_tax_payable" {% if ledger.sub_account == 'sales_tax_payable' %}selected{% endif %}>Sales tax payable</option>
+                    </optgroup>
+                    <optgroup label="Expense Sub-Accounts">
+                        <option value="rent_expense" {% if ledger.sub_account == 'rent_expense' %}selected{% endif %}>Rent expense</option>
+                        <option value="utilities_expense" {% if ledger.sub_account == 'utilities_expense' %}selected{% endif %}>Utilities expense</option>
+                        <option value="salaries_and_wages_expense" {% if ledger.sub_account == 'salaries_and_wages_expense' %}selected{% endif %}>Salaries and wages expense</option>
+                        <option value="marketing_expense" {% if ledger.sub_account == 'marketing_expense' %}selected{% endif %}>Marketing expense</option>
+                        <option value="travel_expenses" {% if ledger.sub_account == 'travel_expenses' %}selected{% endif %}>Travel expenses</option>
+                    </optgroup>
+                    <optgroup label="Revenue Sub-Accounts">
+                        <option value="sales_revenue" {% if ledger.sub_account == 'sales_revenue' %}selected{% endif %}>Sales revenue</option>
+                        <option value="service_revenue" {% if ledger.sub_account == 'service_revenue' %}selected{% endif %}>Service revenue</option>
+                        <option value="interest_income" {% if ledger.sub_account == 'interest_income' %}selected{% endif %}>Interest income</option>
+                        <option value="dividend_income" {% if ledger.sub_account == 'dividend_income' %}selected{% endif %}>Dividend income</option>
+                    </optgroup>
+                    <optgroup label="Equity Sub-Accounts">
+                        <option value="retained_earnings" {% if ledger.sub_account == 'retained_earnings' %}selected{% endif %}>Retained earnings</option>
+                        <option value="share_capital" {% if ledger.sub_account == 'share_capital' %}selected{% endif %}>Share capital</option>
+                        <option value="additional_paid_in_capital" {% if ledger.sub_account == 'additional_paid_in_capital' %}selected{% endif %}>Additional paid-in capital</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- Opening Balance -->
+            <div class="mb-3">
+                <label for="opening_balance" class="form-label">Opening Balance</label>
+                <input type="number" class="form-control" id="opening_balance" name="opening_balance" step="0.01" value="{{ ledger.opening_balance }}" required>
+            </div>
+
+            <!-- Financial Year -->
+            <div class="mb-3">
+                <label for="financial_year" class="form-label">Financial Year</label>
+                <input type="text" class="form-control" id="financial_year" name="financial_year" value="{{ ledger.financial_year }}" placeholder="YYYY-YYYY" required>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{{ url_for('ledgers') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
