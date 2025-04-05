@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyAcc - dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        .table-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .net-income.negative {
+            color: red;
+        }
+        .btn-download {
+            margin: 10px;
+        }
+        .btn-dashboard {
+            margin: 10px;
+        }
+        .container {
+            padding: 20px;
+        }
+        form {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        form label {
+            margin-right: 10px;
+        }
+        form input {
+            margin-right: 20px;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .overdue {
+            color: red;
+            font-weight: bold;
+        }
+                .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.7); /* Default color */
+            transition: all 0.3s ease-in-out;
+        }
+        .navbar-nav .nav-link:hover {
+            font-weight: bold;
+            color: white; /* Make text white when hovered */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">EasyAcc</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('invoices.invoices') }}">Invoices</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('journals.journals_data') }}">Journals</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('inventory.inventory_data') }}">Inventory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('vouchers.add_voucher') }}">Vouchers</a>
+                    </li>
+               </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <footer>
+        <p>&copy; 2025 all copy right reserver to jdmaa trading</p>
+    </footer>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Voucher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <div class="container py-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Add New Voucher</h2>
+            </div>
+            <div class="card-body">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Voucher Form -->
+                <form method="POST" action="{{ url_for('vouchers.add_voucher') }}" id="voucher-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    <div class="row g-3">
+                        <!-- Voucher Info -->
+                        <div class="col-md-6">
+                            <label class="form-label">Voucher Number</label>
+                            <input type="text" class="form-control" name="voucher_number" value="{{ next_voucher_number }}" readonly>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label">Date *</label>
+                            <input type="text" class="form-control" id="date" name="date" required>
+                        </div>
+
+                        <!-- Party Information -->
+                        <div class="col-md-6">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" name="full_name" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">ID Number *</label>
+                            <input type="text" class="form-control" name="id_number" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">TIN Number *</label>
+                            <input type="text" class="form-control" name="tin_number" required>
+                        </div>
+
+                        <!-- Voucher Type -->
+                        <div class="col-md-6">
+                            <label class="form-label">Voucher Type *</label>
+                            <select class="form-select" name="voucher_type" id="voucher-type" required>
+                                <option value="">Select Type</option>
+                                <option value="Payment">Payment</option>
+                                <option value="Receipt">Receipt</option>
+                                <option value="Purchase">Purchase</option>
+                                <option value="Adjustment">Adjustment</option>
+                            </select>
+                        </div>
+
+                        <!-- Financial Details -->
+                        <div class="col-md-4">
+                            <label class="form-label">Total Amount *</label>
+                            <input type="number" step="0.01" class="form-control" id="total-amount" name="total_amount" required>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">VAT</label>
+                            <input type="number" step="0.01" class="form-control" id="vat" name="vat" value="0" readonly>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Withhold Tax</label>
+                            <input type="number" step="0.01" class="form-control" id="withhold-tax" name="withhold_tax" value="0">
+                        </div>
+
+                        <!-- Account Mapping (Hidden by default, shown based on type) -->
+                        <div class="col-md-6 d-none" id="account-fields">
+                            <label class="form-label">Account Type *</label>
+                            <select class="form-select" name="account_type" id="account-type">
+                                <option value="">Select Account</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Accounts Receivable">Accounts Receivable</option>
+                                <option value="Accounts Payable">Accounts Payable</option>
+                                <option value="Expense">Expense</option>
+                                <option value="Revenue">Revenue</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary px-4" id="submit-btn">
+                            <i class="bi bi-save"></i> Save Voucher
+                        </button>
+                        <a href="{{ url_for('vouchers.list_vouchers') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+    <script>
+        // Initialize date picker
+        flatpickr("#date", {
+            dateFormat: "Y-m-d",
+            defaultDate: new Date()
+        });
+
+        // Auto-calculate VAT (15%)
+        document.getElementById('total-amount').addEventListener('input', function() {
+            const amount = parseFloat(this.value) || 0;
+            document.getElementById('vat').value = (amount * 0.15).toFixed(2);
+        });
+
+        // Show account fields for certain voucher types
+        document.getElementById('voucher-type').addEventListener('change', function() {
+            const accountFields = document.getElementById('account-fields');
+            if (['Payment', 'Receipt', 'Purchase'].includes(this.value)) {
+                accountFields.classList.remove('d-none');
+                accountFields.querySelector('select').required = true;
+            } else {
+                accountFields.classList.add('d-none');
+                accountFields.querySelector('select').required = false;
+            }
+        });
+
+        // Form validation
+        document.getElementById('voucher-form').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Processing...
+            `;
+
+            // Additional validation can be added here
+            let isValid = true;
+            document.querySelectorAll('[required]').forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-save"></i> Save Voucher';
+                
+                // Scroll to first error
+                document.querySelector('.is-invalid').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        });
+    </script>
+</body>
+</html>

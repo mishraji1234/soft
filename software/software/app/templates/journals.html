@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyAcc - Accounting System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .table-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .net-income.negative {
+            color: red;
+        }
+        .btn-download {
+            margin: 10px;
+        }
+        .btn-dashboard {
+            margin: 10px;
+        }
+        .container {
+            padding: 20px;
+        }
+        form {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        form label {
+            margin-right: 10px;
+        }
+        form input {
+            margin-right: 20px;
+        }
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease-in-out;
+        }
+        .navbar-nav .nav-link:hover {
+            font-weight: bold;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.home') }}">EasyAcc</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.home') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.invoices') }}">Invoices</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.journals') }}">Journals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.ledgers') }}">Ledgers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.inventory') }}">Inventory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.vouchers') }}">Vouchers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.income_statement') }}">Income Statement</a>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.trial_balance') }}">Trial Balance</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.balance_sheet') }}">Balance Sheet</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal Entries - EasyAcc</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <style>
+        .journal-table th {
+            white-space: nowrap;
+        }
+        .debit-amount { color: #dc3545; }
+        .credit-amount { color: #28a745; }
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation (same as your original) -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <!-- ... keep your existing nav code ... -->
+    </nav>
+
+    <div class="container-fluid py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Accounting Journals</h1>
+            <div>
+                <a href="{{ url_for('main.add_journal') }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Add Journal
+                </a>
+                <button class="btn btn-success" onclick="printJournal()">
+                    <i class="bi bi-printer"></i> Print
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="journalFilter">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Date From</label>
+                            <input type="date" class="form-control" name="date_from">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date To</label>
+                            <input type="date" class="form-control" name="date_to">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Account</label>
+                            <select class="form-select" name="account_id">
+                                <option value="">All Accounts</option>
+                                {% for account in ledger_accounts %}
+                                <option value="{{ account.id }}">{{ account.account_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">Filter</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Journal Entries Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h5>Journal Entries</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="showPostedOnly">
+                    <label class="form-check-label" for="showPostedOnly">Show Posted Only</label>
+                </div>
+            </div>
+            <div class="card-body table-container">
+                <table id="journalsTable" class="table journal-table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Journal #</th>
+                            <th>Reference</th>
+                            <th>Description</th>
+                            <th>Account (Debit)</th>
+                            <th>Account (Credit)</th>
+                            <th class="text-end">Debit</th>
+                            <th class="text-end">Credit</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="journalsTableBody">
+                        <!-- Data will be loaded dynamically -->
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-active">
+                            <th colspan="6">Totals</th>
+                            <th class="text-end total-debits">0.00</th>
+                            <th class="text-end total-credits">0.00</th>
+                            <th colspan="2"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Debits</h5>
+                        <p class="card-text display-6 total-debits-card">0.00 ETB</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Credits</h5>
+                        <p class="card-text display-6 total-credits-card">0.00 ETB</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-info mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Balance</h5>
+                        <p class="card-text display-6 balance-card">0.00 ETB</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    
+    <script>
+        // Initialize DataTable
+        const journalTable = $('#journalsTable').DataTable({
+            order: [[0, 'desc']],
+            pageLength: 50,
+            columns: [
+                { data: 'entry_date' },
+                { data: null, render: (data) => `JRN-${data.id}` },
+                { data: null, render: getTransactionLink },
+                { data: 'description' },
+                { data: null, render: (data) => `${data.debit_account} (${data.debit_account_no})` },
+                { data: null, render: (data) => `${data.credit_account} (${data.credit_account_no})` },
+                { data: 'amount', className: 'text-end debit-amount', render: (amount) => amount.toFixed(2) },
+                { data: 'amount', className: 'text-end credit-amount', render: (amount) => amount.toFixed(2) },
+                { data: null, render: (data) => data.is_posted ? 
+                    '<span class="badge bg-success">Posted</span>' : 
+                    '<span class="badge bg-warning text-dark">Draft</span>' },
+                { data: null, render: getActionButtons }
+            ]
+        });
+
+        // Print function
+        function printJournal() {
+            window.print();
+        }
+
+        // Filter form submission
+        document.getElementById('journalFilter').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetchJournalData();
+        });
+
+        // Show posted only toggle
+        document.getElementById('showPostedOnly').addEventListener('change', function() {
+            journalTable.draw();
+        });
+
+        // Helper functions
+        function getTransactionLink(data) {
+            if (data.transaction_type === 'invoice') {
+                return `<a href="/view_invoice/${data.transaction_id}">INV-${data.transaction_id}</a>`;
+            } else if (data.transaction_type === 'voucher') {
+                return `<a href="/view_voucher/${data.transaction_id}">VCH-${data.transaction_id}</a>`;
+            }
+            return 'Manual Entry';
+        }
+
+        function getActionButtons(data) {
+            return `
+                <div class="btn-group btn-group-sm">
+                    <a href="/edit_journal/${data.id}" class="btn btn-outline-primary" title="Edit">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    ${!data.is_posted ? `
+                    <a href="/post_journal/${data.id}" class="btn btn-outline-success" title="Post">
+                        <i class="bi bi-check-circle"></i>
+                    </a>
+                    <a href="/delete_journal/${data.id}" class="btn btn-outline-danger" title="Delete"
+                       onclick="return confirm('Are you sure?')">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                    ` : ''}
+                    <a href="/print_journal/${data.id}" class="btn btn-outline-secondary" title="Print">
+                        <i class="bi bi-printer"></i>
+                    </a>
+                </div>
+            `;
+        }
+
+        // Real-time data fetching
+        function fetchJournalData() {
+            const formData = new FormData(document.getElementById('journalFilter'));
+            const params = new URLSearchParams(formData).toString();
+            
+            fetch(`/journals/data?${params}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update DataTable
+                    journalTable.clear().rows.add(data.journals).draw();
+                    
+                    // Update totals
+                    $('.total-debits').text(data.total_debits.toFixed(2));
+                    $('.total-credits').text(data.total_credits.toFixed(2));
+                    $('.balance-card').text((data.total_debits - data.total_credits).toFixed(2) + ' ETB');
+                    $('.total-debits-card').text(data.total_debits.toFixed(2) + ' ETB');
+                    $('.total-credits-card').text(data.total_credits.toFixed(2) + ' ETB');
+                });
+        }
+
+        // Initial load and auto-refresh every 30 seconds
+        fetchJournalData();
+        setInterval(fetchJournalData, 30000);
+    </script>
+</body>
+</html>

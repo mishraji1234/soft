@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyAcc - dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        .table-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .net-income.negative {
+            color: red;
+        }
+        .btn-download {
+            margin: 10px;
+        }
+        .btn-dashboard {
+            margin: 10px;
+        }
+        .container {
+            padding: 20px;
+        }
+        form {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        form label {
+            margin-right: 10px;
+        }
+        form input {
+            margin-right: 20px;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .overdue {
+            color: red;
+            font-weight: bold;
+        }
+                .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.7); /* Default color */
+            transition: all 0.3s ease-in-out;
+        }
+        .navbar-nav .nav-link:hover {
+            font-weight: bold;
+            color: white; /* Make text white when hovered */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.home') }}">EasyAcc</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.home') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.invoices') }}">Invoices</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.journals') }}">Journals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.ledgers') }}">Ledgers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.inventory') }}">Inventory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.vouchers') }}">Vouchers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.income_statement') }}">Income Statement</a>
+                    <li class="nav-item">
+						<a class="nav-link" href="{{ url_for('main.trial_balance') }}">Trial Balance</a></li>
+                    <li class="nav-item">
+						<a class="nav-link" href="{{ url_for('main.balance_sheet') }}">Balance Sheet</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <footer>
+        <p>&copy; 2025 all copy right reserver to jdmaa trading</p>
+    </footer>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Journal Entry</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #f9f9f9;
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .required:after {
+            content: " *";
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="form-container">
+            <h1 class="mb-4">Add Journal Entry</h1>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('main.add_journal') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                
+                <div class="row g-3">
+                    <!-- Date -->
+                    <div class="col-md-6">
+                        <label for="entry_date" class="form-label required">Date</label>
+                        <input type="date" class="form-control" id="entry_date" name="entry_date" required 
+                               value="{{ request.form.entry_date or '' }}">
+                    </div>
+
+                    <!-- Reference -->
+                    <div class="col-md-6">
+                        <label for="reference" class="form-label">Reference</label>
+                        <input type="text" class="form-control" id="reference" name="reference" 
+                               value="{{ request.form.reference or '' }}">
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label for="description" class="form-label required">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="2" required>{{ request.form.description or '' }}</textarea>
+                    </div>
+
+                    <!-- Debit Account -->
+                    <div class="col-md-6">
+                        <label for="debit_account_id" class="form-label required">Debit Account</label>
+                        <select class="form-select" id="debit_account_id" name="debit_account_id" required>
+                            <option value="">Select Account</option>
+                            {% for account in ledger_accounts %}
+                            <option value="{{ account.id }}" {% if request.form.debit_account_id == account.id|string %}selected{% endif %}>
+                                {{ account.account_name }} ({{ account.account_no }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Credit Account -->
+                    <div class="col-md-6">
+                        <label for="credit_account_id" class="form-label required">Credit Account</label>
+                        <select class="form-select" id="credit_account_id" name="credit_account_id" required>
+                            <option value="">Select Account</option>
+                            {% for account in ledger_accounts %}
+                            <option value="{{ account.id }}" {% if request.form.credit_account_id == account.id|string %}selected{% endif %}>
+                                {{ account.account_name }} ({{ account.account_no }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="col-md-6">
+                        <label for="amount" class="form-label required">Amount</label>
+                        <div class="input-group">
+                            <span class="input-group-text">ETB</span>
+                            <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0" required 
+                                   value="{{ request.form.amount or '' }}">
+                        </div>
+                    </div>
+
+                    <!-- Transaction Type -->
+                    <div class="col-md-6">
+                        <label for="transaction_type" class="form-label">Transaction Type</label>
+                        <select class="form-select" id="transaction_type" name="transaction_type">
+                            <option value="">Manual Entry</option>
+                            <option value="invoice" {% if request.form.transaction_type == 'invoice' %}selected{% endif %}>Invoice</option>
+                            <option value="voucher" {% if request.form.transaction_type == 'voucher' %}selected{% endif %}>Voucher</option>
+                        </select>
+                    </div>
+
+                    <!-- Transaction ID (dynamic based on type) -->
+                    <div class="col-12" id="transaction_id_container" style="display: none;">
+                        <label for="transaction_id" class="form-label">Transaction ID</label>
+                        <input type="number" class="form-control" id="transaction_id" name="transaction_id" 
+                               value="{{ request.form.transaction_id or '' }}">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('main.journals') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Journals
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Journal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show/hide transaction ID field based on type selection
+        document.getElementById('transaction_type').addEventListener('change', function() {
+            const container = document.getElementById('transaction_id_container');
+            container.style.display = this.value ? 'block' : 'none';
+        });
+
+        // Initialize the field visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.getElementById('transaction_type');
+            if (typeSelect.value) {
+                document.getElementById('transaction_id_container').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

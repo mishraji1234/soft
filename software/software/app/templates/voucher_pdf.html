@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voucher {{ voucher.voucher_number }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pdf.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .details {
+            margin-bottom: 30px;
+        }
+        .details table {
+            width: 100%;
+        }
+        .details td {
+            padding: 5px;
+        }
+        .amount-details {
+            margin-top: 30px;
+            border: 1px solid #ddd;
+            padding: 15px;
+        }
+        .amount-details table {
+            width: 100%;
+        }
+        .amount-details td {
+            padding: 5px;
+        }
+        .amount-details .total {
+            font-weight: bold;
+            border-top: 2px solid #000;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .signature {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 200px;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>VOUCHER</h1>
+    </div>
+
+    <div class="details">
+        <table>
+            <tr>
+                <td><strong>Voucher Number:</strong></td>
+                <td>{{ voucher.voucher_number }}</td>
+                <td><strong>Date:</strong></td>
+                <td>{{ voucher.date.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            <tr>
+                <td><strong>Name:</strong></td>
+                <td>{{ voucher.name }}</td>
+                <td><strong>TIN Number:</strong></td>
+                <td>{{ voucher.tin_number }}</td>
+            </tr>
+            <tr>
+                <td><strong>ID Number:</strong></td>
+                <td>{{ voucher.id_number }}</td>
+                <td><strong>Voucher Type:</strong></td>
+                <td>{{ voucher.voucher_type }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="amount-details">
+        <table>
+            <tr>
+                <td><strong>Subtotal:</strong></td>
+                <td class="text-right">{{ "%.2f"|format(voucher.total_amount - voucher.vat) }}</td>
+            </tr>
+            <tr>
+                <td><strong>VAT ({{ "%.0f"|format(voucher.vat / voucher.total_amount * 100) }}%):</strong></td>
+                <td class="text-right">{{ "%.2f"|format(voucher.vat) }}</td>
+            </tr>
+            <tr>
+                <td><strong>Withhold Tax:</strong></td>
+                <td class="text-right">{{ "%.2f"|format(voucher.withhold_tax) }}</td>
+            </tr>
+            <tr class="total">
+                <td><strong>Total Amount:</strong></td>
+                <td class="text-right">{{ "%.2f"|format(voucher.total_amount) }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="signature">
+        <div class="signature-line"></div>
+        <p>Authorized Signature</p>
+    </div>
+</body>
+</html>

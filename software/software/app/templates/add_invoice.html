@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyAcc - dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        .table-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .highlight {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .net-income.negative {
+            color: red;
+        }
+        .btn-download {
+            margin: 10px;
+        }
+        .btn-dashboard {
+            margin: 10px;
+        }
+        .container {
+            padding: 20px;
+        }
+        form {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        form label {
+            margin-right: 10px;
+        }
+        form input {
+            margin-right: 20px;
+        }
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .overdue {
+            color: red;
+            font-weight: bold;
+        }
+                .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.7); /* Default color */
+            transition: all 0.3s ease-in-out;
+        }
+        .navbar-nav .nav-link:hover {
+            font-weight: bold;
+            color: white; /* Make text white when hovered */
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">EasyAcc</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('invoices.list_invoices') }}">Invoices</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('vouchers.list_vouchers') }}">Vouchers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('journals.list_journals') }}">Journals</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <footer>
+        <p>&copy; 2025 all copy right reserver to jdmaa trading</p>
+    </footer>
+
+    <div class="container mt-4">
+        <div class="title-box">
+            <h1 class="my-4">Add New Invoice</h1>
+        </div>
+
+        <!-- Form Errors Display -->
+        <div id="form-errors" class="alert alert-danger d-none"></div>
+        
+        <form method="POST" action="{{ url_for('invoices.add_invoice') }}" id="invoice-form">
+			            <!-- CSRF Protection -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+			
+            <!-- Basic Information Section -->
+            <div class="invoice-section mb-4">
+                <h4 class="mb-3">Basic Information</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Customer Name *</label>
+                        <input type="text" class="form-control" name="customer_name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">TIN/ID Number *</label>
+                        <input type="text" class="form-control" name="tin_id" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Type *</label>
+                        <select class="form-select" id="invoice-type" name="type" required>
+                            <option value="">Select Type</option>
+                            <option value="Sale">Sale</option>
+                            <option value="Purchase">Purchase</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">DR/CR *</label>
+                        <select class="form-select" name="dr_cr" required>
+                            <option value="">Select</option>
+                            <option value="DR">Debit (DR)</option>
+                            <option value="CR">Credit (CR)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Account Type *</label>
+                        <select class="form-select" id="account-type" name="account_type" required>
+                            <option value="">Select Account Type</option>
+                            <option value="Asset">Asset</option>
+                            <option value="Liability">Liability</option>
+                            <option value="Equity">Equity</option>
+                            <option value="Revenue">Revenue</option>
+                            <option value="Expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sub Account *</label>
+                        <select class="form-select" id="sub-account" name="sub_account" required>
+                            <option value="">Select Sub Account</option>
+                            <!-- Dynamically populated -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Items Section -->
+            <div class="invoice-section mb-4">
+                <h4 class="mb-3">Inventory Items</h4>
+                <div id="line-items">
+                    <div class="item-card line-item mb-3 p-3 border rounded">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary mt-2" id="add-item">
+                    <i class="bi bi-plus-circle"></i> Add Another Item
+                </button>
+            </div>
+
+            <!-- Financial Details Section -->
+            <div class="invoice-section mb-4">
+                <h4 class="mb-3">Financial Details</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Description *</label>
+                        <textarea class="form-control" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Base Amount</label>
+                        <input type="number" class="form-control" id="base-amount" 
+                               name="base_amount" step="0.01" readonly>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Withholding Tax</label>
+                        <input type="number" class="form-control" id="withholding-tax" 
+                               name="withholding_tax" step="0.01" value="0.00">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <h5>Total VAT: <span id="total-vat">0.00</span></h5>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Grand Total: <span id="grand-total">0.00</span></h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                    Create Invoice
+                </button>
+                <a href="{{ url_for('invoices.list_invoices') }}" class="btn btn-secondary btn-lg">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    
+    <script>
+        // Sub-account mapping
+        const subAccounts = {
+            'Asset': ['Cash', 'Accounts Receivable', 'Inventory'],
+            'Liability': ['Accounts Payable', 'Loans Payable'],
+            'Revenue': ['Sales Revenue', 'Service Revenue'],
+            'Expense': ['Cost of Goods Sold', 'Operating Expenses']
+        };
+
+        // Field Templates
+        const purchaseTemplate = `
+            <div class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <input type="text" class="form-control item-name" name="item_name[]" 
+                           placeholder="Item Name" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control unit-price" name="unit_price[]" 
+                           step="0.01" min="0" placeholder="Unit Price" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control quantity" name="quantity[]" 
+                           min="1" value="1" required>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-item">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const salesTemplate = `
+            <div class="row g-3 align-items-center">
+                <div class="col-md-4">
+                    <select class="form-select inventory-item" name="inventory_item[]" required>
+                        <option value="">Select Item</option>
+                        {% for item in inventory_items %}
+                        <option value="{{ item.id }}" 
+                                data-price="{{ item.unit_price }}"
+                                data-stock="{{ item.quantity }}">
+                            {{ item.item_name }} (Stock: {{ item.quantity }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control selling-price" name="selling_price[]" 
+                           step="0.01" min="0" placeholder="Selling Price" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="number" class="form-control quantity" name="quantity[]" 
+                           min="1" max="" value="1" required>
+                    <small class="text-muted stock-available"></small>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-danger remove-item">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up account type -> sub-account mapping
+            document.getElementById('account-type').addEventListener('change', function() {
+                const subAccountSelect = document.getElementById('sub-account');
+                subAccountSelect.innerHTML = '<option value="">Select Sub Account</option>';
+                
+                if (this.value && subAccounts[this.value]) {
+                    subAccounts[this.value].forEach(option => {
+                        subAccountSelect.innerHTML += `<option value="${option}">${option}</option>`;
+                    });
+                }
+            });
+
+            updateItemFields();
+            calculateTotals();
+        });
+
+        // Update inventory fields based on type
+        function updateItemFields() {
+            const isPurchase = document.getElementById('invoice-type').value === 'Purchase';
+            document.querySelectorAll('.line-item').forEach(item => {
+                item.innerHTML = isPurchase ? purchaseTemplate : salesTemplate;
+            });
+            attachItemEventListeners();
+            calculateTotals();
+        }
+
+        // Add new item
+        document.getElementById('add-item').addEventListener('click', function() {
+            const newItem = document.createElement('div');
+            newItem.className = 'item-card line-item mb-3 p-3 border rounded';
+            newItem.innerHTML = document.getElementById('invoice-type').value === 'Purchase' 
+                ? purchaseTemplate 
+                : salesTemplate;
+            document.getElementById('line-items').appendChild(newItem);
+            attachItemEventListeners();
+        });
+
+        // Attach event listeners to item fields
+        function attachItemEventListeners() {
+            // Inventory item selection change
+            document.querySelectorAll('.inventory-item').forEach(select => {
+                select.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const parentItem = this.closest('.line-item');
+                    const quantityField = parentItem.querySelector('.quantity');
+                    const stockAvailable = parentItem.querySelector('.stock-available');
+                    
+                    if (selectedOption.value) {
+                        quantityField.max = selectedOption.dataset.stock;
+                        stockAvailable.textContent = `Max: ${selectedOption.dataset.stock}`;
+                    } else {
+                        quantityField.max = '';
+                        stockAvailable.textContent = '';
+                    }
+                    calculateTotals();
+                });
+            });
+
+            // Quantity and price changes
+            document.querySelectorAll('.quantity, .unit-price, .selling-price').forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+        }
+
+        // Remove item
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-item')) {
+                const items = document.querySelectorAll('.line-item');
+                if (items.length > 1) {
+                    e.target.closest('.line-item').remove();
+                    calculateTotals();
+                }
+            }
+        });
+
+        // Calculate totals
+        function calculateTotals() {
+            let subTotal = 0;
+            const isPurchase = document.getElementById('invoice-type').value === 'Purchase';
+
+            document.querySelectorAll('.line-item').forEach(item => {
+                if (isPurchase) {
+                    const price = parseFloat(item.querySelector('.unit-price').value) || 0;
+                    const quantity = parseFloat(item.querySelector('.quantity').value) || 0;
+                    subTotal += price * quantity;
+                } else {
+                    const price = parseFloat(item.querySelector('.selling-price').value) || 0;
+                    const quantity = parseFloat(item.querySelector('.quantity').value) || 0;
+                    subTotal += price * quantity;
+                }
+            });
+
+            const vat = subTotal * 0.15;
+            const withholdingTax = parseFloat(document.getElementById('withholding-tax').value) || 0;
+            const grandTotal = subTotal + vat - withholdingTax;
+
+            document.getElementById('total-vat').textContent = vat.toFixed(2);
+            document.getElementById('grand-total').textContent = grandTotal.toFixed(2);
+            document.getElementById('base-amount').value = subTotal.toFixed(2);
+        }
+
+        // Invoice type change
+        document.getElementById('invoice-type').addEventListener('change', function() {
+            updateItemFields();
+        });
+
+        // Form validation
+        function validateForm() {
+            const errors = [];
+            const errorContainer = document.getElementById('form-errors');
+            errorContainer.innerHTML = '';
+            errorContainer.classList.add('d-none');
+
+            // Check at least one item is added
+            const items = document.querySelectorAll('.line-item');
+            if (items.length === 0) {
+                errors.push('Please add at least one inventory item');
+            } else {
+                // Validate each item
+                items.forEach((item, index) => {
+                    const inputs = item.querySelectorAll('[required]');
+                    inputs.forEach(input => {
+                        if (!input.value.trim()) {
+                            errors.push(`Item ${index + 1}: ${input.getAttribute('placeholder') || input.getAttribute('name')} is required`);
+                            input.classList.add('is-invalid');
+                        } else {
+                            input.classList.remove('is-invalid');
+                        }
+                    });
+                });
+            }
+
+            // Check main form fields
+            document.querySelectorAll('#invoice-form [required]').forEach(field => {
+                if (!field.closest('.line-item') && !field.value.trim()) {
+                    errors.push(`${field.labels[0].textContent.replace('*', '').trim()} is required`);
+                    field.classList.add('is-invalid');
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+
+            // Display errors if any
+            if (errors.length > 0) {
+                errorContainer.innerHTML = `
+                    <strong>Please fix the following errors:</strong>
+                    <ul class="mb-0">
+                        ${errors.map(error => `<li>${error}</li>`).join('')}
+                    </ul>
+                `;
+                errorContainer.classList.remove('d-none');
+                return false;
+            }
+
+            return true;
+        }
+
+        // Form submission
+        document.getElementById('invoice-form').addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Processing...
+            `;
+        });
+    </script>
+</body>
+</html>
